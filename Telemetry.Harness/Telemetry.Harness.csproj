@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<AssemblyMetadata Include="Ymm4Directory" Value="$(YMM4DirPath)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="YukkuriMovieMaker.Plugin">
+			<HintPath>$(YMM4DirPath)YukkuriMovieMaker.Plugin.dll</HintPath>
+			<Private>false</Private>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Telemetry\Telemetry.csproj" />
+		<ProjectReference Include="..\Telemetry.Harness.PluginA\Telemetry.Harness.PluginA.csproj" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\Telemetry.Harness.PluginB\Telemetry.Harness.PluginB.csproj" ReferenceOutputAssembly="false" />
+	</ItemGroup>
+
+</Project>
