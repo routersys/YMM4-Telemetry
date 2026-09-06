@@ -1,0 +1,9 @@
+<Project>
+
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Telemetry\**\*.cs"
+             Exclude="$(MSBuildThisFileDirectory)Telemetry\bin\**;$(MSBuildThisFileDirectory)Telemetry\obj\**"
+             LinkBase="Telemetry" />
+  </ItemGroup>
+
+</Project>
