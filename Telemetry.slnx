@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Telemetry/Telemetry.csproj" />
+  <Project Path="Telemetry.Tests/Telemetry.Tests.csproj" />
+  <Project Path="Telemetry.Harness/Telemetry.Harness.csproj" />
+  <Project Path="Telemetry.Harness.PluginA/Telemetry.Harness.PluginA.csproj" />
+  <Project Path="Telemetry.Harness.PluginB/Telemetry.Harness.PluginB.csproj" />
+</Solution>
