@@ -1,0 +1,230 @@
+[
+  {
+    "name": "背圧の判定を反転する",
+    "file": "Telemetry/TelemetryBackoff.cs",
+    "find": "until > DateTimeOffset.UtcNow",
+    "replace": "until < DateTimeOffset.UtcNow"
+  },
+  {
+    "name": "背圧の期限を短縮できるようにする",
+    "file": "Telemetry/TelemetryBackoff.cs",
+    "find": "existing >= until",
+    "replace": "existing <= until"
+  },
+  {
+    "name": "セッションの上限を一件ずらす",
+    "file": "Telemetry/TelemetryBudget.cs",
+    "find": "if (sent >= MaxEventsPerSession)",
+    "replace": "if (sent > MaxEventsPerSession)"
+  },
+  {
+    "name": "重複の上限を一件ずらす",
+    "file": "Telemetry/TelemetryBudget.cs",
+    "find": "if (duplicates >= MaxEventsPerFingerprint)",
+    "replace": "if (duplicates > MaxEventsPerFingerprint)"
+  },
+  {
+    "name": "重複の計数を増やさない",
+    "file": "Telemetry/TelemetryBudget.cs",
+    "find": "counts[fingerprint] = duplicates + 1;",
+    "replace": "counts[fingerprint] = duplicates;"
+  },
+  {
+    "name": "送信数の計数を増やさない",
+    "file": "Telemetry/TelemetryBudget.cs",
+    "find": "ProcessState.Write(SentCountName, sent + 1);",
+    "replace": "ProcessState.Write(SentCountName, sent);"
+  },
+  {
+    "name": "背圧を無視して枠を渡す",
+    "file": "Telemetry/TelemetryBudget.cs",
+    "find": "if (TelemetryBackoff.IsActive)",
+    "replace": "if (!TelemetryBackoff.IsActive && false)"
+  },
+  {
+    "name": "例外の連なりを反転しない",
+    "file": "Telemetry/ExceptionCapture.cs",
+    "find": "for (var index = thrownFirst.Count - 1; index >= 0; index--)",
+    "replace": "for (var index = 0; index < thrownFirst.Count; index++)"
+  },
+  {
+    "name": "フレームを反転しない",
+    "file": "Telemetry/ExceptionCapture.cs",
+    "find": "for (var index = Math.Min(frames.Length, MaxFrames) - 1; index >= 0; index--)",
+    "replace": "for (var index = 0; index < Math.Min(frames.Length, MaxFrames); index++)"
+  },
+  {
+    "name": "連なりの上限を効かせない",
+    "file": "Telemetry/ExceptionCapture.cs",
+    "find": "while (current is not null && thrownFirst.Count < MaxChainLength)",
+    "replace": "while (current is not null && thrownFirst.Count < int.MaxValue)"
+  },
+  {
+    "name": "自分のアセンブリの判定を常に真にする",
+    "file": "Telemetry/ExceptionCapture.cs",
+    "find": "ownAssembly is not null && declaringType is not null && ReferenceEquals(declaringType.Assembly, ownAssembly)",
+    "replace": "ownAssembly is not null && declaringType is not null"
+  },
+  {
+    "name": "例外メッセージを除去せず送る",
+    "file": "Telemetry/ExceptionCapture.cs",
+    "find": "TextScrubber.Scrub(exception.Message) ?? string.Empty",
+    "replace": "exception.Message"
+  },
+  {
+    "name": "指紋で自分のフレームを区別しない",
+    "file": "Telemetry/EventFingerprint.cs",
+    "find": "if (inAppOnly && !frame.InApp)",
+    "replace": "if (inAppOnly && frame.InApp)"
+  },
+  {
+    "name": "指紋に外部フレームを混ぜる",
+    "file": "Telemetry/EventFingerprint.cs",
+    "find": "appended += Append(builder, exception.Frames, true, appended);",
+    "replace": "appended += Append(builder, exception.Frames, false, appended);"
+  },
+  {
+    "name": "行番号が無くても書き出す",
+    "file": "Telemetry/SentryEnvelope.cs",
+    "find": "if (frame.LineNumber > 0)",
+    "replace": "if (frame.LineNumber >= 0)"
+  },
+  {
+    "name": "指紋にプラグイン名を入れない",
+    "file": "Telemetry/SentryEnvelope.cs",
+    "find": "writer.WriteStringValue(PluginIdentity.Name);",
+    "replace": "writer.WriteStringValue(DefaultGrouping);"
+  },
+  {
+    "name": "利用者の識別子に永続値を混ぜる",
+    "file": "Telemetry/SentryEnvelope.cs",
+    "find": "writer.WriteString(\"id\", TelemetrySession.Id);",
+    "replace": "writer.WriteString(\"id\", TelemetrySession.Id);\n        writer.WriteString(\"ip_address\", \"127.0.0.1\");"
+  },
+  {
+    "name": "短すぎる候補も置換対象にする",
+    "file": "Telemetry/TextScrubber.cs",
+    "find": "|| literal.Length < MinimumReplaceableLength",
+    "replace": "|| literal.Length < 0"
+  },
+  {
+    "name": "候補の重複を除かない",
+    "file": "Telemetry/TextScrubber.cs",
+    "find": "|| replacements.Exists(existing => string.Equals(existing.Key, literal, StringComparison.OrdinalIgnoreCase))",
+    "replace": "|| false"
+  },
+  {
+    "name": "長い候補から置換しない",
+    "file": "Telemetry/TextScrubber.cs",
+    "find": "replacements.Sort(static (left, right) => right.Key.Length.CompareTo(left.Key.Length));",
+    "replace": "replacements.Sort(static (left, right) => left.Key.Length.CompareTo(right.Key.Length));"
+  },
+  {
+    "name": "退避の上限を効かせない",
+    "file": "Telemetry/TelemetrySpool.cs",
+    "find": "while (index < files.Count && (files.Count - index > MaxFiles || total > MaxTotalBytes))",
+    "replace": "while (false)"
+  },
+  {
+    "name": "一時ファイルを置き換えない",
+    "file": "Telemetry/TelemetrySpool.cs",
+    "find": "File.Move(temporary, path, true);",
+    "replace": "File.Copy(temporary, path, true);"
+  },
+  {
+    "name": "上限に達しても送信を作る",
+    "file": "Telemetry/TelemetryReporter.cs",
+    "find": "if (decision != BudgetDecision.Allowed)",
+    "replace": "if (decision == BudgetDecision.Allowed && false)"
+  },
+  {
+    "name": "一時的な失敗でも退避を消す",
+    "file": "Telemetry/TelemetryReporter.cs",
+    "find": "&& result.Outcome is DeliveryOutcome.Delivered or DeliveryOutcome.Rejected)",
+    "replace": "&& result.Outcome is DeliveryOutcome.Delivered or DeliveryOutcome.Rejected or DeliveryOutcome.Deferred)"
+  },
+  {
+    "name": "制限を受けても背圧を記録しない",
+    "file": "Telemetry/TelemetryReporter.cs",
+    "find": "TelemetryBackoff.Extend(DateTimeOffset.UtcNow + result.RetryAfter);",
+    "replace": "_ = result.RetryAfter;"
+  },
+  {
+    "name": "再送で背圧を無視する",
+    "file": "Telemetry/TelemetryReporter.cs",
+    "find": "if (delivered >= MaxDrainBatch || TelemetryBackoff.IsActive)",
+    "replace": "if (delivered >= MaxDrainBatch)"
+  },
+  {
+    "name": "再送で失敗しても続ける",
+    "file": "Telemetry/TelemetryReporter.cs",
+    "find": "if (outcome is not (DeliveryOutcome.Delivered or DeliveryOutcome.Rejected))",
+    "replace": "if (false)"
+  },
+  {
+    "name": "施錠に失敗しても処理を進める",
+    "file": "Telemetry/ProcessState.cs",
+    "find": "if (!acquired)\n            {\n                return false;\n            }",
+    "replace": "if (false)\n            {\n                return false;\n            }"
+  },
+  {
+    "name": "除去しても値を残す",
+    "file": "Telemetry/ProcessState.cs",
+    "find": "AppDomain.CurrentDomain.SetData(DataKeyPrefix + name, null);",
+    "replace": "_ = name;"
+  },
+  {
+    "name": "成功でない応答も受理とみなす",
+    "file": "Telemetry/HttpTelemetryChannel.cs",
+    "find": "if (response.IsSuccessStatusCode)",
+    "replace": "if (!response.IsSuccessStatusCode)"
+  },
+  {
+    "name": "制限の応答を見分けない",
+    "file": "Telemetry/HttpTelemetryChannel.cs",
+    "find": "if (response.StatusCode == HttpStatusCode.TooManyRequests)",
+    "replace": "if (response.StatusCode != HttpStatusCode.TooManyRequests && false)"
+  },
+  {
+    "name": "四百番台と五百番台を取り違える",
+    "file": "Telemetry/HttpTelemetryChannel.cs",
+    "find": "return status >= ClientErrorLowerBound && status < ClientErrorUpperBound",
+    "replace": "return status >= ClientErrorLowerBound && status <= ClientErrorUpperBound"
+  },
+  {
+    "name": "待ち時間の既定値を零にする",
+    "file": "Telemetry/HttpTelemetryChannel.cs",
+    "find": "return FallbackRetryAfter;",
+    "replace": "return TimeSpan.Zero;"
+  },
+  {
+    "name": "応答の待ち時間を読まない",
+    "file": "Telemetry/HttpTelemetryChannel.cs",
+    "find": "if (retryAfter?.Delta is { } delta && delta > TimeSpan.Zero)",
+    "replace": "if (retryAfter?.Delta is { } delta && delta < TimeSpan.Zero)"
+  },
+  {
+    "name": "内容種別を付けない",
+    "file": "Telemetry/HttpTelemetryChannel.cs",
+    "find": "request.Content.Headers.ContentType = new MediaTypeHeaderValue(TelemetryEndpoint.ContentType);",
+    "replace": "request.Content.Headers.ContentType = null;"
+  },
+  {
+    "name": "送信先を画面に出る方のホストにする",
+    "file": "Telemetry/TelemetryEndpoint.cs",
+    "find": "private const string Host = \"ingest.routersys.com\";",
+    "replace": "private const string Host = \"telemetry.routersys.com\";"
+  },
+  {
+    "name": "利用者エージェントを空にする",
+    "file": "Telemetry/TelemetryEndpoint.cs",
+    "find": "$\"{ClientName}/{ClientVersion}\");",
+    "replace": "$\"\");"
+  },
+  {
+    "name": "セッション識別子を起動ごとに変えない",
+    "file": "Telemetry/TelemetrySession.cs",
+    "find": "$\"{DerivationPrefix} {processId} {startTime}\");",
+    "replace": "$\"{DerivationPrefix}\");"
+  }
+]
